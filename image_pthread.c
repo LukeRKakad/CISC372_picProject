@@ -74,24 +74,17 @@ void *convolute(void *arg) {
     long rank = data->rank;
 
     int row, pix, bit;
-    int localRuns = srcImage->bpp / threadCount;
+int startRow = rank * srcImage->height / threadCount;
+int endRow = (rank + 1) * srcImage->height / threadCount;
 
-    for (row = 0; row < srcImage->height; row++) {
-        for (pix = 0; pix < srcImage->width; pix++) {
-            for (bit = 0; bit < localRuns; bit++) {
-                destImage->data[Index(
-                    pix, row, srcImage->width,
-                    bit + rank * localRuns,
-                    srcImage->bpp
-                )] = getPixelValue(
-                    srcImage, pix, row,
-                    bit + rank * localRuns,
-                    algorithm
-                );
-            }
+for(row = startRow; row < endRow; row++){
+    for(pix = 0; pix < srcImage->width; pix++){
+        for(bit = 0; bit < srcImage->bpp; bit++){
+            destImage->data[Index(pix,row,bit,srcImage->width,srcImage->bpp)] = 
+                getPixelValue(srcImage,pix,row,bit,data->algorithm);
         }
     }
-
+}
     return NULL;
 }
 //Usage: Prints usage information for the program
