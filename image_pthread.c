@@ -3,13 +3,15 @@
 #include <time.h>
 #include <string.h>
 #include "image.h"
-
+#include <pthread.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
+
+int threadCount;
 //An array of kernel matrices to be used for image convolution.  
 //The indexes of these match the enumeration from the header file. ie. algorithms[BLUR] returns the kernel corresponding to a box blur.
 Matrix algorithms[]={
@@ -56,13 +58,16 @@ uint8_t getPixelValue(Image* srcImage,int x,int y,int bit,Matrix algorithm){
 //            destImage: A pointer to a  pre-allocated (including space for the pixel array) structure to receive the convoluted image.  It should be the same size as srcImage
 //            algorithm: The kernel matrix to use for the convolution
 //Returns: Nothing
-void convolute(Image* srcImage,Image* destImage,Matrix algorithm){
+void convolute(Image* srcImage,Image* destImage,Matrix algorithm, void* elrank){
     int row,pix,bit,span;
+    int localRuns = srcImage->bpp / threadCount;
+    long rank = (long) elrank;
+    //rank
     span=srcImage->bpp*srcImage->bpp;
     for (row=0;row<srcImage->height;row++){
         for (pix=0;pix<srcImage->width;pix++){
-            for (bit=0;bit<srcImage->bpp;bit++){
-                destImage->data[Index(pix,row,srcImage->width,bit,srcImage->bpp)]=getPixelValue(srcImage,pix,row,bit,algorithm);
+            for (bit=0;bit<localRuns;bit++){
+                destImage->data[Index(pix,row,srcImage->width,bit + rank * localRuns,srcImage->bpp)]=getPixelValue(srcImage,pix,row,bit + rank * localRuns,algorithm);
             }
         }
     }
@@ -92,6 +97,10 @@ enum KernelTypes GetKernelType(char* type){
 int main(int argc,char** argv){
     long t1,t2;
     t1=time(NULL);
+    long thread;
+    pthread_t* thread_handles;
+    threadCount = strtol(argv[1], NULL, 10);
+    thread_handles = (pthread_t*)malloc(threadCount*sizeof(pthread_t));
 
     stbi_set_flip_vertically_on_load(0); 
     if (argc!=3) return Usage();
@@ -111,10 +120,15 @@ int main(int argc,char** argv){
     destImage.height=srcImage.height;
     destImage.width=srcImage.width;
     destImage.data=malloc(sizeof(uint8_t)*destImage.width*destImage.bpp*destImage.height);
-    convolute(&srcImage,&destImage,algorithms[type]);
+    for(int i = 0; i < threadCount; i++){
+        pthread_create(&thread_handles[thread], NULL, &convolute(&srcImage,&destImage,algorithms[type]), (void*)thread);
+}
+    for(int i = 0; i < threadCount; i++){
+        pthread_join(&thread_handles[thread], NULL, &convolute(&srcImage,&destImage,algorithms[type]), (void*)thread);
+}
     stbi_write_png("output.png",destImage.width,destImage.height,destImage.bpp,destImage.data,destImage.bpp*destImage.width);
     stbi_image_free(srcImage.data);
-    
+    free(thread_handles);
     free(destImage.data);
     t2=time(NULL);
     printf("Took %ld seconds\n",t2-t1);
