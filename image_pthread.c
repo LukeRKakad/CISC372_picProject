@@ -154,6 +154,7 @@ for (long thread = 0; thread < threadCount; thread++) {
     stbi_image_free(srcImage.data);
     free(thread_handles);
     free(destImage.data);
+    free(data);
     t2=time(NULL);
     printf("Took %ld seconds\n",t2-t1);
    return 0;
