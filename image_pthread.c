@@ -144,7 +144,7 @@ for (long thread = 0; thread < threadCount; thread++) {
     memcpy(data->algorithm, algorithms[type], sizeof(Matrix));
     data->rank = thread;
 
-    pthread_create(&thread_handles[thread], NULL, convolute, data);
+    pthread_create(&thread_handles[thread], NULL, convolute, (void *)data);
 }
     for(long i = 0; i < threadCount; i++){
     pthread_join(thread_handles[i], NULL);
@@ -154,7 +154,6 @@ for (long thread = 0; thread < threadCount; thread++) {
     stbi_image_free(srcImage.data);
     free(thread_handles);
     free(destImage.data);
-    free(data);
     t2=time(NULL);
     printf("Took %ld seconds\n",t2-t1);
    return 0;
