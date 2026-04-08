@@ -124,7 +124,7 @@ int main(int argc,char** argv){
     thread_handles = (pthread_t*)malloc(threadCount*sizeof(pthread_t));
 
     stbi_set_flip_vertically_on_load(0); 
-    if (argc!=3) return Usage();
+    if (argc!=4) return Usage();
     char* fileName=argv[1];
     if (!strcmp(argv[1],"pic4.jpg")&&!strcmp(argv[2],"gauss")){
         printf("You have applied a gaussian filter to Gauss which has caused a tear in the time-space continum.\n");
@@ -154,8 +154,9 @@ for (long thread = 0; thread < threadCount; thread++) {
     pthread_create(&thread_handles[thread], NULL, convolute, data);
 }
     for(long i = 0; i < threadCount; i++){
-        pthread_join(thread_handles[thread], NULL);
+    pthread_join(thread_handles[i], NULL);
 }
+
     stbi_write_png("output.png",destImage.width,destImage.height,destImage.bpp,destImage.data,destImage.bpp*destImage.width);
     stbi_image_free(srcImage.data);
     free(thread_handles);
