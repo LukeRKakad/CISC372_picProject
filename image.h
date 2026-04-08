@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 #define Index(x,y,width,bit,bpp) y*width*bpp+bpp*x+bit
-
+//beans
 typedef struct{
     uint8_t* data;
     int width;
