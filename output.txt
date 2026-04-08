@@ -1,0 +1,9 @@
+Script started on Wed Apr  8 17:50:11 2026
+]0;lukek@r1n07.darwin:~/CISC372_picProject[?1034h[lukek@r1n07 CISC372_picProject]$ srun imageP oic1    pic1.jpg edge 16
+Took 6 seconds
+]0;lukek@r1n07.darwin:~/CISC372_picProject[lukek@r1n07 CISC372_picProject]$ srun imageP pic1.jpg edge 16P[1P[1@O
+Took 7 seconds
+]0;lukek@r1n07.darwin:~/CISC372_picProject[lukek@r1n07 CISC372_picProject]$ exit
+exit
+
+Script done on Wed Apr  8 17:50:54 2026

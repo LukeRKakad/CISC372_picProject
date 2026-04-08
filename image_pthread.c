@@ -136,15 +136,15 @@ int main(int argc,char** argv){
     destImage.data=malloc(sizeof(uint8_t)*destImage.width*destImage.bpp*destImage.height);
 
 
-for (long thread = 0; thread < threadCount; thread++) {
+for (long threadd = 0; threadd < threadCount; threadd++) {
     ThreadData *data = malloc(sizeof(ThreadData));
 
     data->srcImage = &srcImage;
     data->destImage = &destImage;
     memcpy(data->algorithm, algorithms[type], sizeof(Matrix));
-    data->rank = thread;
+    data->rank = threadd;
 
-    pthread_create(&thread_handles[thread], NULL, convolute, (void *)data);
+    pthread_create(&thread_handles[threadd], NULL, convolute, (void *)data);
 }
     for(long i = 0; i < threadCount; i++){
     pthread_join(thread_handles[i], NULL);
